@@ -161,11 +161,6 @@ public final class ReactNativeNotificationsHandler {
                     // Create notification intent
                     Intent intent = ReactNativeUtil.createNotificationIntent(context, bundle, intentClass);
 
-                    if (!bundle.containsKey(KEY_REMOTE_NOTIFICATION_PLAY_SOUND) || bundle.getBoolean(KEY_REMOTE_NOTIFICATION_PLAY_SOUND)) {
-                        Uri soundUri = ReactNativeUtil.getSoundUri(context, bundle);
-                        notificationBuilder.setSound(soundUri);
-                    }
-
                     if (bundle.containsKey(KEY_REMOTE_NOTIFICATION_ONGOING)) {
                         notificationBuilder.setOngoing(bundle.getBoolean(KEY_REMOTE_NOTIFICATION_ONGOING));
                     }

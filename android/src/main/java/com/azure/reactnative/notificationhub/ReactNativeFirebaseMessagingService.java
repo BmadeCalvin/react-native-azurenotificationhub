@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
+import android.media.*;
+import android.net.Uri;
+import android.content.ContentResolver;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -15,7 +17,7 @@ import static com.azure.reactnative.notificationhub.ReactNativeConstants.*;
 
 public class ReactNativeFirebaseMessagingService extends FirebaseMessagingService {
 
-    private static final String TAG = "ReactNativeFMS";
+    private static final String TAG = "ReactNative";
 
     private static String notificationChannelID1;
     private static String notificationChannelID2;
@@ -61,9 +63,12 @@ public class ReactNativeFirebaseMessagingService extends FirebaseMessagingServic
                 NotificationChannel channel1 = builder1.build();
                 NotificationChannel channel2 = builder2.build();
 
-                NotificationManager notificationManager = (NotificationManager) context.getSystemService(
-                        Context.NOTIFICATION_SERVICE);
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
                 if (notificationManager != null) {
+                    Uri notificationSoundUri = Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE.toString() + "://" + context.getPackageName() + "/raw/goal_tune");
+                    AudioAttributes notificationSoundUriAttributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION).build();
+                    channel2.setSound(notificationSoundUri, notificationSoundUriAttributes);
+
                     notificationManager.createNotificationChannel(channel1);
                     notificationManager.createNotificationChannel(channel2);
                     notificationChannelID1 = channel1.getId();
@@ -100,14 +105,14 @@ public class ReactNativeFirebaseMessagingService extends FirebaseMessagingServic
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         ReactNativeNotificationHubUtil notificationHubUtil = ReactNativeNotificationHubUtil.getInstance();
-        Log.d(TAG, "Remote message from: " + remoteMessage.getFrom());
+        Log.d(TAG, "Remote message: " + remoteMessage);
 
         if (notificationChannelID1 == null && notificationChannelID2 == null) {
             createNotificationChannel(this);
         }
 
         Bundle bundle = remoteMessage.toIntent().getExtras();
-        Log.d("ReactNative", bundle.toString());
+        Log.d(TAG, "Bundle: " + bundle.toString());
         if (notificationHubUtil.getAppIsForeground()) {
             bundle.putBoolean(KEY_REMOTE_NOTIFICATION_FOREGROUND, true);
             bundle.putBoolean(KEY_REMOTE_NOTIFICATION_USER_INTERACTION, false);
